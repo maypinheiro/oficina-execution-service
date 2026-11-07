@@ -10,3 +10,8 @@ variable "project" {
   type    = string
   default = "oficina-execution"
 }
+variable "deletion_protection_enabled" {
+  type        = bool
+  description = "Protege a tabela contra exclusão acidental em ambientes persistentes."
+  default     = false
+}
