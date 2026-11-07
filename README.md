@@ -44,9 +44,10 @@ O serviço nunca acessa bancos dos demais microsserviços.
 
 - [Arquitetura e limites](docs/architecture.md)
 - [Contratos planejados](docs/contracts.md)
+- [Migração e isolamento dos dados](docs/data-migration.md)
 - Swagger/OpenAPI: será publicado com os endpoints operacionais; nesta fase somente `/health` existe.
 - [Arquitetura geral e Saga no OS Service](https://github.com/maypinheiro/oficina-api/tree/develop/docs/fase4)
 
 ## Estado da Fase 1
 
-Estrutura inicial concluída. Banco, filas, observabilidade distribuída e participação real na Saga ainda não foram implementados.
+A tabela DynamoDB própria e os scripts de migração/reconciliação estão versionados. Filas, observabilidade distribuída e participação real na Saga ainda não foram implementadas.
