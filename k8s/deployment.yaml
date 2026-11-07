@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oficina-execution-service
+  namespace: oficina-execution
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: oficina-execution-service }
+  template:
+    metadata:
+      labels:
+        app: oficina-execution-service
+        tags.datadoghq.com/service: oficina-execution-service
+        tags.datadoghq.com/env: hml
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/maypinheiro/oficina-execution-service:latest
+          imagePullPolicy: Always
+          ports: [{ containerPort: 3000 }]
+          readinessProbe:
+            httpGet: { path: /health, port: 3000 }
+          livenessProbe:
+            httpGet: { path: /health, port: 3000 }
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
