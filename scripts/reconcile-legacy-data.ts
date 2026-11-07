@@ -14,7 +14,13 @@ async function main(): Promise<void> {
   const expectedResult = await source.query(`SELECT count(*)::int count FROM "OrdemDeServico" WHERE status::text IN ('EM_DIAGNOSTICO','AGUARDANDO_APROVACAO','APROVADA','EM_EXECUCAO','FINALIZADA','ENTREGUE')`);
   let actual = 0; let startKey: Record<string, unknown> | undefined;
   do {
-    const page = await dynamo.send(new ScanCommand({ TableName: targetTableName, Select: "COUNT", ExclusiveStartKey: startKey }));
+    const page = await dynamo.send(new ScanCommand({
+      TableName: targetTableName,
+      Select: "COUNT",
+      FilterExpression: "entityType = :entityType",
+      ExpressionAttributeValues: { ":entityType": "Execution" },
+      ExclusiveStartKey: startKey
+    }));
     actual += page.Count ?? 0; startKey = page.LastEvaluatedKey;
   } while (startKey);
   const expected = expectedResult.rows[0].count as number;
