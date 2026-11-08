@@ -40,6 +40,12 @@ spec:
             - name: AWS_REGION
               valueFrom:
                 configMapKeyRef: { name: oficina-execution-config, key: aws-region }
+            - name: COMMAND_QUEUE_URL
+              valueFrom:
+                configMapKeyRef: { name: oficina-execution-config, key: command-queue-url }
+            - name: DOMAIN_EVENTS_TOPIC_ARN
+              valueFrom:
+                configMapKeyRef: { name: oficina-execution-config, key: domain-events-topic-arn }
             - name: DD_ENV
               valueFrom:
                 configMapKeyRef: { name: oficina-execution-config, key: environment }
