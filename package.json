@@ -21,6 +21,8 @@
     "@aws-sdk/client-sns": "^3.1164.0",
     "@aws-sdk/client-sqs": "^3.1164.0",
     "@aws-sdk/lib-dynamodb": "^3.922.0",
+    "dd-trace": "^6.24.0",
+    "hot-shots": "^17.1.0",
     "pg": "^8.16.3"
   },
   "devDependencies": {
