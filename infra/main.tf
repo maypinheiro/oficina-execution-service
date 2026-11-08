@@ -66,7 +66,9 @@ data "aws_iam_policy_document" "execution_data" {
 resource "aws_iam_policy" "execution_data" {
   name   = "${var.project}-${var.environment}-data"
   policy = data.aws_iam_policy_document.execution_data.json
-  tags   = local.common_tags
+
+  # O AWS Academy Learner Lab permite criar a policy, mas bloqueia iam:TagPolicy.
+  # Os recursos de dados continuam etiquetados; somente a policy fica sem tags.
 }
 
 resource "aws_sqs_queue" "messages_dlq" {
