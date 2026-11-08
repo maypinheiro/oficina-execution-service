@@ -3,30 +3,72 @@ kind: Deployment
 metadata:
   name: oficina-execution-service
   namespace: oficina-execution
+  labels:
+    app.kubernetes.io/name: oficina-execution-service
+    app.kubernetes.io/part-of: oficina
 spec:
   replicas: 2
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
   selector:
     matchLabels: { app: oficina-execution-service }
   template:
     metadata:
       labels:
         app: oficina-execution-service
+        app.kubernetes.io/name: oficina-execution-service
+        app.kubernetes.io/part-of: oficina
         tags.datadoghq.com/service: oficina-execution-service
         tags.datadoghq.com/env: hml
     spec:
+      automountServiceAccountToken: true
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: { type: RuntimeDefault }
       containers:
         - name: api
           image: ghcr.io/maypinheiro/oficina-execution-service:latest
           imagePullPolicy: Always
-          ports: [{ containerPort: 3000 }]
+          ports: [{ name: http, containerPort: 3000 }]
+          env:
+            - name: EXECUTION_TABLE_NAME
+              valueFrom:
+                configMapKeyRef: { name: oficina-execution-config, key: execution-table-name }
+            - name: AWS_REGION
+              valueFrom:
+                configMapKeyRef: { name: oficina-execution-config, key: aws-region }
+            - name: DD_ENV
+              valueFrom:
+                configMapKeyRef: { name: oficina-execution-config, key: environment }
+            - name: DD_SERVICE
+              value: oficina-execution-service
+            - name: DD_VERSION
+              value: IMAGE_TAG
           readinessProbe:
-            httpGet: { path: /health, port: 3000 }
+            httpGet: { path: /health, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
           livenessProbe:
-            httpGet: { path: /health, port: 3000 }
+            httpGet: { path: /health, port: http }
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          startupProbe:
+            httpGet: { path: /health, port: http }
+            failureThreshold: 30
+            periodSeconds: 2
           resources:
             requests: { cpu: 100m, memory: 128Mi }
-            limits: { cpu: 500m, memory: 256Mi }
+            limits: { cpu: 500m, memory: 512Mi }
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             runAsNonRoot: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - name: tmp
+          emptyDir: {}
