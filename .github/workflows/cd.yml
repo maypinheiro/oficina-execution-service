@@ -103,6 +103,10 @@ jobs:
 
       - name: Aplicar configuração
         shell: bash
+        env:
+          POD_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          POD_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          POD_AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
         run: |
           kubectl apply -f k8s/namespace.yaml
           kubectl -n oficina-execution create configmap oficina-execution-config \
@@ -111,6 +115,11 @@ jobs:
             --from-literal=execution-table-name="$EXECUTION_TABLE_NAME" \
             --from-literal=command-queue-url="${{ vars.COMMAND_QUEUE_URL }}" \
             --from-literal=domain-events-topic-arn="${{ vars.DOMAIN_EVENTS_TOPIC_ARN }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl -n oficina-execution create secret generic oficina-execution-aws-session \
+            --from-literal=aws-access-key-id="$POD_AWS_ACCESS_KEY_ID" \
+            --from-literal=aws-secret-access-key="$POD_AWS_SECRET_ACCESS_KEY" \
+            --from-literal=aws-session-token="$POD_AWS_SESSION_TOKEN" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Publicar no Kubernetes
