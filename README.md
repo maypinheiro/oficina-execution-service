@@ -30,6 +30,8 @@ O CI valida tipos, testes com cobertura mínima de 80%, build, auditoria crític
 
 Variáveis dos Environments: `AWS_REGION`, `EKS_CLUSTER_NAME` e `EXECUTION_TABLE_NAME`. Segredos: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` e `AWS_SESSION_TOKEN`. O acesso aos recursos AWS deve ser limitado à tabela e aos tópicos/filas do serviço.
 
+No AWS Academy Learner Lab, o cluster não disponibiliza OIDC/IRSA nem EKS Pod Identity. Por essa limitação acadêmica, as credenciais temporárias da sessão são materializadas pelo CD em um `Secret` e injetadas no pod para DynamoDB, SQS e SNS; elas expiram junto com o laboratório e nunca são versionadas. Em conta permanente, a arquitetura-alvo substitui essa compatibilidade por IRSA/Pod Identity com privilégio mínimo.
+
 Os manifestos incluem Deployment com rollout sem indisponibilidade, probes de inicialização/prontidão/vida, limites de recursos, contexto restritivo, HPA por CPU e memória, Service, ConfigMap e PodDisruptionBudget.
 
 ## Observabilidade
