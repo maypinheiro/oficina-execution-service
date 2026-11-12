@@ -63,3 +63,5 @@ O serviço nunca acessa bancos dos demais microsserviços.
 ## Persistência e integração
 
 A tabela DynamoDB própria e os scripts de migração/reconciliação estão versionados. Os contratos SNS/SQS, inbox idempotente e handlers de comandos da Saga estão documentados e cobertos por testes.
+
+No caminho feliz, o serviço consome `StartExecution` e `CompleteExecution`, persiste as transições `IN_EXECUTION` e `COMPLETED` no DynamoDB e publica `ExecutionStarted` e `ExecutionCompleted` no tópico compartilhado. `CancelExecution` implementa a compensação, marcando `CANCELLED` e liberando a reserva operacional.
