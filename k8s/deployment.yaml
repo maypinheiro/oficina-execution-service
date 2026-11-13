@@ -23,7 +23,7 @@ spec:
         tags.datadoghq.com/service: oficina-execution-service
         tags.datadoghq.com/env: hml
     spec:
-      automountServiceAccountToken: true
+      automountServiceAccountToken: false
       terminationGracePeriodSeconds: 30
       securityContext:
         runAsNonRoot: true
@@ -40,6 +40,21 @@ spec:
             - name: AWS_REGION
               valueFrom:
                 configMapKeyRef: { name: oficina-execution-config, key: aws-region }
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef: { name: oficina-execution-aws-session, key: aws-access-key-id }
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef: { name: oficina-execution-aws-session, key: aws-secret-access-key }
+            - name: AWS_SESSION_TOKEN
+              valueFrom:
+                secretKeyRef: { name: oficina-execution-aws-session, key: aws-session-token }
+            - name: COMMAND_QUEUE_URL
+              valueFrom:
+                configMapKeyRef: { name: oficina-execution-config, key: command-queue-url }
+            - name: DOMAIN_EVENTS_TOPIC_ARN
+              valueFrom:
+                configMapKeyRef: { name: oficina-execution-config, key: domain-events-topic-arn }
             - name: DD_ENV
               valueFrom:
                 configMapKeyRef: { name: oficina-execution-config, key: environment }
