@@ -45,6 +45,8 @@ jobs:
         run: |
           test -n "$EKS_CLUSTER_NAME" || { echo "EKS_CLUSTER_NAME não configurado no Environment"; exit 1; }
           test -n "$EXECUTION_TABLE_NAME" || { echo "EXECUTION_TABLE_NAME não configurado no Environment"; exit 1; }
+          test -n "${{ vars.COMMAND_QUEUE_URL }}" || { echo "COMMAND_QUEUE_URL não configurado"; exit 1; }
+          test -n "${{ vars.DOMAIN_EVENTS_TOPIC_ARN }}" || { echo "DOMAIN_EVENTS_TOPIC_ARN não configurado"; exit 1; }
 
       - name: Validar manifestos Kubernetes
         run: docker run --rm -v "$PWD:/workspace" ghcr.io/yannh/kubeconform:latest -strict -summary /workspace/k8s
@@ -101,12 +103,23 @@ jobs:
 
       - name: Aplicar configuração
         shell: bash
+        env:
+          POD_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          POD_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          POD_AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
         run: |
           kubectl apply -f k8s/namespace.yaml
           kubectl -n oficina-execution create configmap oficina-execution-config \
             --from-literal=environment="$DEPLOY_ENV" \
             --from-literal=aws-region="$AWS_REGION" \
             --from-literal=execution-table-name="$EXECUTION_TABLE_NAME" \
+            --from-literal=command-queue-url="${{ vars.COMMAND_QUEUE_URL }}" \
+            --from-literal=domain-events-topic-arn="${{ vars.DOMAIN_EVENTS_TOPIC_ARN }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl -n oficina-execution create secret generic oficina-execution-aws-session \
+            --from-literal=aws-access-key-id="$POD_AWS_ACCESS_KEY_ID" \
+            --from-literal=aws-secret-access-key="$POD_AWS_SECRET_ACCESS_KEY" \
+            --from-literal=aws-session-token="$POD_AWS_SESSION_TOKEN" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Publicar no Kubernetes
@@ -115,6 +128,9 @@ jobs:
           sed -i "s|ghcr.io/maypinheiro/oficina-execution-service:latest|$IMAGE:$SOURCE_SHA|" k8s/deployment.yaml
           sed -i "s|value: IMAGE_TAG|value: $SOURCE_SHA|" k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml -f k8s/deployment.yaml -f k8s/hpa.yaml -f k8s/pdb.yaml
+          # Secrets do AWS Academy mantêm o mesmo nome quando a sessão gira.
+          # Uma nova geração garante que os pods carreguem as credenciais atuais.
+          kubectl -n oficina-execution rollout restart deployment/oficina-execution-service
           kubectl -n oficina-execution rollout status deployment/oficina-execution-service --timeout=5m
 
       - name: Evidência do deploy
