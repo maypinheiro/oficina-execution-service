@@ -1,0 +1,37 @@
+openapi: 3.0.3
+info:
+  title: Oficina Execution Service API
+  version: 1.0.0
+  description: |
+    Contrato HTTP do microsserviço de diagnóstico e execução. O serviço expõe
+    somente o health check; seu domínio é acionado de forma assíncrona pelos
+    comandos `StartExecution`, `CompleteExecution` e `CancelExecution` via SQS.
+    Os eventos de resposta são publicados via SNS e estão descritos em
+    `docs/contracts.md`.
+servers:
+  - url: http://localhost:3000
+    description: Desenvolvimento local
+paths:
+  /health:
+    get:
+      summary: Verifica a disponibilidade do serviço
+      operationId: getExecutionHealth
+      responses:
+        "200":
+          description: Serviço disponível
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+components:
+  schemas:
+    Health:
+      type: object
+      required: [status, service]
+      properties:
+        status:
+          type: string
+          example: ok
+        service:
+          type: string
+          example: oficina-execution-service
