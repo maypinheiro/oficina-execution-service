@@ -52,13 +52,16 @@ O serviço nunca acessa bancos dos demais microsserviços.
 
 ## API e documentação
 
+- [OpenAPI 3.0 da API HTTP](docs/openapi.yaml)
 - [Arquitetura e limites](docs/architecture.md)
 - [Contratos de mensageria v1](docs/contracts.md)
 - [Visão integrada da mensageria](https://github.com/maypinheiro/oficina-api/blob/develop/docs/fase4/fase3-mensageria-basica.md)
 - [Saga orquestrada e compensações](https://github.com/maypinheiro/oficina-api/blob/develop/docs/fase4/fase4-saga-implementada.md)
 - [Migração e isolamento dos dados](docs/data-migration.md)
-- Swagger/OpenAPI: será publicado com os endpoints operacionais; nesta fase somente `/health` existe.
+- O contrato HTTP atual contém somente `/health`; o fluxo operacional é assíncrono e está integralmente especificado no catálogo de mensageria.
 - [Arquitetura geral e Saga no OS Service](https://github.com/maypinheiro/oficina-api/tree/develop/docs/fase4)
+
+O arquivo OpenAPI pode ser importado no Swagger Editor, Swagger UI, Insomnia ou Postman. O serviço não expõe comandos operacionais por REST para evitar dois caminhos concorrentes de alteração do estado da execução.
 
 ## Persistência e integração
 
