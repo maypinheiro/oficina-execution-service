@@ -36,7 +36,7 @@ Os manifestos incluem Deployment com rollout sem indisponibilidade, probes de in
 
 ## Observabilidade
 
-O serviço envia traces APM, runtime metrics e métricas DogStatsD ao Agent do nó. Requisições e comandos da Saga produzem logs JSON com `correlationId`, `sagaId`, `eventId` e `ordemServicoId`; campos sensíveis são redigidos. Principais métricas: `oficina.http.*`, `oficina.saga.messages.*` e `oficina.saga.message.duration_ms`. Consulte a [estratégia integrada de observabilidade](https://github.com/maypinheiro/oficina-api/blob/develop/docs/fase4/fase10-observabilidade-distribuida.md).
+O serviço envia traces APM, runtime metrics e métricas DogStatsD ao Agent do nó. Requisições e comandos da Saga produzem logs JSON com `correlationId`, `sagaId`, `eventId` e `ordemServicoId`; campos sensíveis são redigidos. Principais métricas: `oficina.http.*`, `oficina.saga.messages.*` e `oficina.saga.message.duration_ms`. Consulte a [estratégia integrada de observabilidade](https://github.com/maypinheiro/oficina-api/blob/main/docs/fase4/fase10-observabilidade-distribuida.md).
 
 ## Arquitetura do serviço
 
@@ -55,11 +55,11 @@ O serviço nunca acessa bancos dos demais microsserviços.
 - [OpenAPI 3.0 da API HTTP](docs/openapi.yaml)
 - [Arquitetura e limites](docs/architecture.md)
 - [Contratos de mensageria v1](docs/contracts.md)
-- [Visão integrada da mensageria](https://github.com/maypinheiro/oficina-api/blob/develop/docs/fase4/fase3-mensageria-basica.md)
-- [Saga orquestrada e compensações](https://github.com/maypinheiro/oficina-api/blob/develop/docs/fase4/fase4-saga-implementada.md)
+- [Visão integrada da mensageria](https://github.com/maypinheiro/oficina-api/blob/main/docs/fase4/fase3-mensageria-basica.md)
+- [Saga orquestrada e compensações](https://github.com/maypinheiro/oficina-api/blob/main/docs/fase4/fase4-saga-implementada.md)
 - [Migração e isolamento dos dados](docs/data-migration.md)
 - O contrato HTTP atual contém somente `/health`; o fluxo operacional é assíncrono e está integralmente especificado no catálogo de mensageria.
-- [Arquitetura geral e Saga no OS Service](https://github.com/maypinheiro/oficina-api/tree/develop/docs/fase4)
+- [Arquitetura geral e Saga no OS Service](https://github.com/maypinheiro/oficina-api/tree/main/docs/fase4)
 
 O arquivo OpenAPI pode ser importado no Swagger Editor, Swagger UI, Insomnia ou Postman. O serviço não expõe comandos operacionais por REST para evitar dois caminhos concorrentes de alteração do estado da execução.
 
