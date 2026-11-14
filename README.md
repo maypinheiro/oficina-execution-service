@@ -52,16 +52,36 @@ O serviço nunca acessa bancos dos demais microsserviços.
 
 ## API e documentação
 
-- [OpenAPI 3.0 da API HTTP](docs/openapi.yaml)
-- [Arquitetura e limites](docs/architecture.md)
-- [Contratos de mensageria v1](docs/contracts.md)
-- [Visão integrada da mensageria](https://github.com/maypinheiro/oficina-api/blob/main/docs/fase4/fase3-mensageria-basica.md)
-- [Saga orquestrada e compensações](https://github.com/maypinheiro/oficina-api/blob/main/docs/fase4/fase4-saga-implementada.md)
-- [Migração e isolamento dos dados](docs/data-migration.md)
+| Documento | O que comprova |
+|---|---|
+| [OpenAPI 3.0](docs/openapi.yaml) | contrato HTTP e decisão de manter escrita operacional assíncrona |
+| [Arquitetura do serviço](docs/architecture.md) | componentes, modelo DynamoDB, estados, segurança, Kubernetes e rastreabilidade |
+| [Decisões arquiteturais](docs/decisions.md) | NoSQL, escritas condicionais, Inbox, compensação e deploy independente |
+| [Contratos de mensageria v1](docs/contracts.md) | comandos, eventos, envelope e idempotência |
+| [Migração e isolamento dos dados](docs/data-migration.md) | migração, reconciliação e revogação da leitura legada |
+| [Arquitetura geral da Fase 4](https://github.com/maypinheiro/oficina-api/blob/main/docs/fase4/arquitetura-alvo.md) | visão dos três microsserviços, bancos e comunicação |
+| [Saga orquestrada e compensações](https://github.com/maypinheiro/oficina-api/blob/main/docs/fase4/saga-orquestrada.md) | caminho feliz, máquina de estados e rollback de negócio |
+| [Matriz de conformidade](https://github.com/maypinheiro/oficina-api/blob/main/docs/fase4/matriz-conformidade.md) | requisito oficial → implementação → evidência |
+| [Catálogo de evidências](https://github.com/maypinheiro/oficina-api/blob/main/docs/fase4/catalogo-evidencias.md) | testes, pipelines, OS/Sagas executadas e Datadog |
+| [RFCs e ADRs globais](https://github.com/maypinheiro/oficina-api/tree/main/docs/fase4) | justificativa da divisão, Saga, SNS/SQS, Outbox e DynamoDB |
 - O contrato HTTP atual contém somente `/health`; o fluxo operacional é assíncrono e está integralmente especificado no catálogo de mensageria.
 - [Arquitetura geral e Saga no OS Service](https://github.com/maypinheiro/oficina-api/tree/main/docs/fase4)
 
 O arquivo OpenAPI pode ser importado no Swagger Editor, Swagger UI, Insomnia ou Postman. O serviço não expõe comandos operacionais por REST para evitar dois caminhos concorrentes de alteração do estado da execução.
+
+## Rastreabilidade rápida dos requisitos
+
+| Requisito | Atendimento |
+|---|---|
+| Microsserviço independente | repositório, imagem, Terraform, banco, manifests e CI/CD próprios |
+| Banco não relacional próprio | DynamoDB com chave composta, GSI, PITR e criptografia |
+| Fila e execução | `StartExecution`, `CompleteExecution` e consulta por status no GSI |
+| Comunicação assíncrona | fila SQS exclusiva, tópico SNS, retry e DLQ |
+| Saga e rollback | `CancelExecution` libera reserva e publica `ExecutionCancelled` |
+| Idempotência | Inbox DynamoDB e escritas condicionais |
+| Qualidade | testes unitários, gate de cobertura de 80%, build e análise SonarCloud da organização |
+| Kubernetes | Deployment, Service, HPA, PDB, probes e security context |
+| Observabilidade | APM, logs JSON e métricas correlacionadas no Datadog |
 
 ## Persistência e integração
 
